@@ -1,9 +1,9 @@
-from .data import create_captcha_generator
-from .models import create_mask_segmentation_model
+from data import build_dataset, Mode
+from models import create_mask_segmentation_model
 
 
 def main():
-    generator = create_captcha_generator()
+    ds = build_dataset(Mode.MaskSegments)
     model = create_mask_segmentation_model()
 
 

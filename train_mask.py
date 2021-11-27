@@ -1,9 +1,10 @@
-from .data import create_captcha_generator
-from .models import create_mask_model
+from data import build_dataset, Mode
+from models import create_mask_model
 
 
 def main():
-    generator = create_captcha_generator()
+    ds = build_dataset(Mode.Masks)
+    print(ds.take(1))
     model = create_mask_model()
 
 
