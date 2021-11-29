@@ -14,7 +14,7 @@ class Mode(enum.Enum):
 
 class CAPTCHADatasetSource(CAPTCHAGenerator):
     def __init__(self, mode: tf.int32, dims: tuple):
-        super().__init__(CHARSET_ALPHANUMERIC, dims, dims, 5, 7, FONTS)
+        super().__init__(CHARSET_ALPHANUMERIC, dims, dims, 5, 5, FONTS)
         self.mode = Mode(int(mode))
         self.solution = ""
         self.solution_idx = -1

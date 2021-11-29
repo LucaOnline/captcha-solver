@@ -5,7 +5,7 @@ from models import create_mask_model
 
 
 def main():
-    dims = (150, 300)
+    dims = (100, 200)
 
     ds = build_dataset(dims, Mode.Masks).batch(10)
     val_ds = build_dataset(dims, Mode.Masks).batch(10)
