@@ -1,5 +1,4 @@
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
-from xcaptcha.defaults import CHARSET_ALPHANUMERIC
 
 from data import build_dataset, Mode
 from models import create_mask_model
@@ -9,7 +8,7 @@ def main():
     ds = build_dataset(Mode.Masks)
     val_ds = build_dataset(Mode.Masks)
 
-    model = create_mask_model(len(CHARSET_ALPHANUMERIC))
+    model = create_mask_model(150 * 300)
 
     cb = [
         EarlyStopping(monitor="val_loss", mode="min", patience=10, verbose=1),

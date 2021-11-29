@@ -2,7 +2,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, DepthwiseConv2D, MaxPooling2D, BatchNormalization, Flatten, Dense
 
 
-def create_mask_model(num_classes: int) -> Sequential:
+def create_mask_model(pixels: int) -> Sequential:
     model = Sequential([
         Conv2D(64, (3, 3), activation="relu", kernel_initializer="he_normal"),
         BatchNormalization(),
@@ -20,8 +20,7 @@ def create_mask_model(num_classes: int) -> Sequential:
         Flatten(),
         Dense(64, activation="relu", kernel_initializer="he_normal"),
         BatchNormalization(),
-        Dense(num_classes, activation="softmax",
-              kernel_initializer="he_normal"),
+        Dense(pixels, kernel_initializer="he_normal"),
     ])
 
     model.compile(
