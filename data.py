@@ -25,7 +25,7 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
             # X=single character mask, Y=character
             next_char = self.solution[self.solution_idx]
             next_data = (tf.convert_to_tensor(
-                self.solution_masks[next_char], np.float64), np.float32(ord(next_char)))
+                self.solution_masks[next_char], np.float32), np.float32(ord(next_char)))
             self.solution_idx += 1
             return next_data
 
