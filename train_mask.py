@@ -7,7 +7,7 @@ from models import create_mask_model
 def main():
     dims = (75, 150)
 
-    ds = build_dataset(dims, Mode.Masks).batch(1)
+    ds = build_dataset(dims, 100, Mode.Masks).batch(10)
 
     model = create_mask_model(dims)
 
@@ -19,7 +19,7 @@ def main():
         TensorBoard(),
     ]
 
-    model.fit(ds, epochs=10, callbacks=cb, verbose=1)
+    model.fit(ds, epochs=30, callbacks=cb, verbose=1)
 
 
 if __name__ == "__main__":

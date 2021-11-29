@@ -8,14 +8,17 @@ def create_mask_model(dims: Tuple[int, int]) -> Sequential:
     model = Sequential([
         Conv2D(32, (3, 3), activation="relu", input_shape=dims+(1,)),
         Conv2D(32, (3, 3), activation="relu"),
+        Conv2D(64, (1, 1), activation="relu"),
         MaxPooling2D(),
 
         Conv2D(32, (3, 3), activation="relu"),
         Conv2D(32, (3, 3), activation="relu"),
+        Conv2D(64, (1, 1), activation="relu"),
         MaxPooling2D(),
 
         Conv2D(32, (3, 3), activation="relu"),
         Conv2D(32, (3, 3), activation="relu"),
+        Conv2D(64, (1, 1), activation="relu"),
         MaxPooling2D(),
 
         Conv2D(64, (1, 1), activation="relu"),

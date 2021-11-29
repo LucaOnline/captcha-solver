@@ -14,14 +14,20 @@ class Mode(enum.Enum):
 
 
 class CAPTCHADatasetSource(CAPTCHAGenerator):
-    def __init__(self, mode: tf.int32, dims: tuple):
+    def __init__(self, mode: tf.int32, n_data_points: int, dims: tuple):
         super().__init__(CHARSET_ALPHANUMERIC, dims, dims, 5, 5, FONTS)
         self.mode = Mode(int(mode))
+        self.n_data_points = n_data_points
+        self.i_data_point = 0
         self.solution = ""
         self.solution_idx = -1
         self.solution_masks = {}
 
     def __next__(self):
+        if self.i_data_point == self.n_data_points:
+            raise StopIteration()
+        self.i_data_point += 1
+
         if self.mode == Mode.Characters and self.solution_idx != len(self.solution):
             # X=single character mask, Y=character
             next_char = self.solution[self.solution_idx]
@@ -69,9 +75,9 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         return tf.convert_to_tensor(np.reshape(self.merge_masks(np.array(masks)), (h * w,)))
 
 
-def build_dataset(dims: Tuple[int, int], mode: Mode) -> tf.data.Dataset:
+def build_dataset(dims: Tuple[int, int], n_data_points: int, mode: Mode) -> tf.data.Dataset:
     return tf.data.Dataset.from_generator(
         CAPTCHADatasetSource,
-        args=[np.int32(mode.value), dims],
+        args=[np.int32(mode.value), n_data_points, dims],
         output_types=(tf.float32, tf.float32),
         output_shapes=(dims + (1,), dims[0] * dims[1]))
