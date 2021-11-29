@@ -20,19 +20,28 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         self.n_data_points = n_data_points
         self.i_data_point = 0
         self.solution = ""
-        self.solution_idx = -1
+        self.solution_idx = 0
         self.solution_masks = {}
 
     def __next__(self):
+        # Break condition
         if self.i_data_point == self.n_data_points:
             raise StopIteration()
         self.i_data_point += 1
 
         if self.mode == Mode.Characters and self.solution_idx != len(self.solution):
-            # X=single character mask, Y=character
+            # X=single character mask, Y=character sparse vector
             next_char = self.solution[self.solution_idx]
+            h, w = self.solution_masks[next_char].shape
+
+            # Create sparse vector with character label
+            c_i = CHARSET_ALPHANUMERIC.index(next_char)
+            sparse_label = np.zeros(
+                len(CHARSET_ALPHANUMERIC), dtype=np.float32)
+            sparse_label[c_i] = 1
+
             next_data = (tf.convert_to_tensor(
-                self.solution_masks[next_char], np.float32), np.float32(ord(next_char)))
+                np.reshape(self.solution_masks[next_char], (h, w, 1)), np.float32), tf.convert_to_tensor(sparse_label, np.float32))
             self.solution_idx += 1
             return next_data
 
@@ -52,7 +61,7 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
             self.solution = captcha_info.solution
             self.solution_idx = 0
             self.solution_masks = captcha_info.masks
-            return self()
+            return self.__next__()
 
     def merge_masks_distinct(self, masks: List[np.ndarray]) -> np.ndarray:
         # Merge masks, using a distinct value for each layer
@@ -86,6 +95,8 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
 def build_dataset(dims: Tuple[int, int], n_data_points: int, mode: Mode) -> tf.data.Dataset:
     if mode == Mode.Masks or mode == Mode.MaskSegments:
         output_shapes = (dims + (1,), dims[0] * dims[1])
+    elif mode == Mode.Characters:
+        output_shapes = (dims + (1,), len(CHARSET_ALPHANUMERIC))
     return tf.data.Dataset.from_generator(
         CAPTCHADatasetSource,
         args=[np.int32(mode.value), n_data_points, dims],
