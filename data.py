@@ -1,4 +1,5 @@
 import enum
+from typing import List
 import numpy as np
 import tensorflow as tf
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC, FONTS
@@ -34,18 +35,11 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         masks = list(captcha_info.masks.values())
         if self.mode == Mode.Masks:
             # X=image, Y=merged masks
-            return (tf.convert_to_tensor(captcha_info.image), tf.convert_to_tensor(self.merge_masks(np.array(masks))))
+            return (tf.convert_to_tensor(self.rescale_image(captcha_info.image)), self.masks_to_tensor(masks))
         elif self.mode == Mode.MaskSegments:
             # X=merged masks, Y=merged masks with distinct values
-
-            # Merge masks, using a distinct value for each layer
-            label_mask = np.copy(masks[0])
-            for i in range(len(masks) - 1):
-                bottom = label_mask
-                top = masks[i + 1] * (i + 1)
-                label_mask = np.where(top == i+1, top, bottom)
-
-            return (tf.convert_to_tensor(self.merge_masks(np.array(masks))), tf.convert_to_tensor(label_mask))
+            label_mask = self.merge_masks_distinct(masks)
+            return (self.masks_to_tensor(masks), tf.convert_to_tensor(label_mask))
         else:  # self.mode == Mode.Characters
             # Prepare CAPTCHA to be reused for each character in the image
             self.solution = captcha_info.solution
@@ -53,6 +47,26 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
             self.solution_masks = captcha_info.masks
             return self()
 
+    def merge_masks_distinct(self, masks: List[np.ndarray]) -> np.ndarray:
+        # Merge masks, using a distinct value for each layer
+        label_mask = np.copy(masks[0])
+        for i in range(len(masks) - 1):
+            bottom = label_mask
+            top = masks[i + 1] * (i + 1)
+            label_mask = np.where(top == i+1, top, bottom)
+        return label_mask
+
+    def rescale_image(self, image: np.ndarray) -> np.ndarray:
+        return image.astype(np.float32) / 255
+
+    def masks_to_tensor(self, masks: List[np.ndarray]) -> tf.Tensor:
+        return tf.convert_to_tensor(self.merge_masks(np.array(masks)))
+
 
 def build_dataset(mode: Mode) -> tf.data.Dataset:
-    return tf.data.Dataset.from_generator(CAPTCHADatasetSource, args=[np.int32(mode.value), (150, 300)], output_types=tf.float32, output_shapes=())
+    image_shape = (150, 300)
+    return tf.data.Dataset.from_generator(
+        CAPTCHADatasetSource,
+        args=[np.int32(mode.value), image_shape],
+        output_types=(tf.float32, tf.float32),
+        output_shapes=(image_shape + (3,), image_shape))

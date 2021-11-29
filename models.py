@@ -4,7 +4,8 @@ from tensorflow.keras.layers import Conv2D, DepthwiseConv2D, MaxPooling2D, Batch
 
 def create_mask_model(pixels: int) -> Sequential:
     model = Sequential([
-        Conv2D(64, (3, 3), activation="relu", kernel_initializer="he_normal"),
+        Conv2D(64, (3, 3), activation="relu",
+               kernel_initializer="he_normal", input_shape=(150, 300, 3)),
         BatchNormalization(),
         Conv2D(64, (3, 3), activation="relu", kernel_initializer="he_normal"),
         BatchNormalization(),
