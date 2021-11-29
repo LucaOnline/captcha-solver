@@ -3,7 +3,9 @@ from models import create_mask_segmentation_model
 
 
 def main():
-    ds = build_dataset(Mode.MaskSegments)
+    dims = (150, 300)
+
+    ds = build_dataset(dims, Mode.MaskSegments)
     model = create_mask_segmentation_model()
 
 

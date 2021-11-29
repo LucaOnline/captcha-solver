@@ -1,11 +1,12 @@
+from typing import Tuple
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, DepthwiseConv2D, MaxPooling2D, BatchNormalization, Flatten, Dense
 
 
-def create_mask_model(pixels: int) -> Sequential:
+def create_mask_model(dims: Tuple[int, int]) -> Sequential:
     model = Sequential([
         Conv2D(64, (3, 3), activation="relu",
-               kernel_initializer="he_normal", input_shape=(150, 300, 3)),
+               kernel_initializer="he_normal", input_shape=dims+(3,)),
         BatchNormalization(),
         Conv2D(64, (3, 3), activation="relu", kernel_initializer="he_normal"),
         BatchNormalization(),
@@ -21,7 +22,7 @@ def create_mask_model(pixels: int) -> Sequential:
         Flatten(),
         Dense(64, activation="relu", kernel_initializer="he_normal"),
         BatchNormalization(),
-        Dense(pixels, kernel_initializer="he_normal"),
+        Dense(dims[0] * dims[1], kernel_initializer="he_normal"),
     ])
 
     model.compile(

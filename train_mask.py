@@ -5,10 +5,12 @@ from models import create_mask_model
 
 
 def main():
-    ds = build_dataset(Mode.Masks)
-    val_ds = build_dataset(Mode.Masks)
+    dims = (150, 300)
 
-    model = create_mask_model(150 * 300)
+    ds = build_dataset(dims, Mode.Masks).batch(10)
+    val_ds = build_dataset(dims, Mode.Masks).batch(10)
+
+    model = create_mask_model(dims)
 
     cb = [
         EarlyStopping(monitor="val_loss", mode="min", patience=10, verbose=1),

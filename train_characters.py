@@ -3,7 +3,9 @@ from models import create_characters_model
 
 
 def main():
-    ds = build_dataset(Mode.Characters)
+    dims = (150, 300)
+
+    ds = build_dataset(dims, Mode.Characters)
     model = create_characters_model()
 
 

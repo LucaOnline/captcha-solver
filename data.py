@@ -1,5 +1,5 @@
 import enum
-from typing import List
+from typing import List, Tuple
 import numpy as np
 import tensorflow as tf
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC, FONTS
@@ -63,10 +63,9 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         return tf.convert_to_tensor(self.merge_masks(np.array(masks)))
 
 
-def build_dataset(mode: Mode) -> tf.data.Dataset:
-    image_shape = (150, 300)
+def build_dataset(dims: Tuple[int, int], mode: Mode) -> tf.data.Dataset:
     return tf.data.Dataset.from_generator(
         CAPTCHADatasetSource,
-        args=[np.int32(mode.value), image_shape],
+        args=[np.int32(mode.value), dims],
         output_types=(tf.float32, tf.float32),
-        output_shapes=(image_shape + (3,), image_shape))
+        output_shapes=(dims + (3,), dims))
