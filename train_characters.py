@@ -8,7 +8,7 @@ from models import create_characters_model
 def main():
     dims = (75, 150)
 
-    ds = build_dataset(dims, 1000, Mode.Characters).batch(10)
+    ds = build_dataset(dims, 10000, Mode.Characters).batch(50)
 
     model = create_characters_model(dims, len(CHARSET_ALPHANUMERIC))
 
