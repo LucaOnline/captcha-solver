@@ -42,11 +42,11 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         masks = list(captcha_info.masks.values())
         if self.mode == Mode.Masks:
             # X=image, Y=merged masks
-            return (self.format_image(captcha_info.image), self.masks_to_tensor(masks))
+            return (self.format_image(captcha_info.image), self.merge_masks_to_output_tensor(masks))
         elif self.mode == Mode.MaskSegments:
             # X=merged masks, Y=merged masks with distinct values
             label_mask = self.merge_masks_distinct(masks)
-            return (self.masks_to_tensor(masks), tf.convert_to_tensor(label_mask))
+            return (self.merge_masks_to_input_tensor(masks), self.label_mask_to_tensor(label_mask))
         else:  # self.mode == Mode.Characters
             # Prepare CAPTCHA to be reused for each character in the image
             self.solution = captcha_info.solution
@@ -70,14 +70,24 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
     def rescale_image(self, image: np.ndarray) -> np.ndarray:
         return image.astype(np.float32) / 255
 
-    def masks_to_tensor(self, masks: List[np.ndarray]) -> tf.Tensor:
+    def merge_masks_to_output_tensor(self, masks: List[np.ndarray]) -> tf.Tensor:
         h, w = masks[0].shape
         return tf.convert_to_tensor(np.reshape(self.merge_masks(np.array(masks)), (h * w,)))
 
+    def merge_masks_to_input_tensor(self, masks: List[np.ndarray]) -> tf.Tensor:
+        h, w = masks[0].shape
+        return tf.convert_to_tensor(np.reshape(self.merge_masks(np.array(masks)), (h, w, 1)))
+
+    def label_mask_to_tensor(self, label_mask: np.ndarray) -> tf.Tensor:
+        h, w = label_mask.shape
+        return tf.convert_to_tensor(np.reshape(label_mask, (h * w,)))
+
 
 def build_dataset(dims: Tuple[int, int], n_data_points: int, mode: Mode) -> tf.data.Dataset:
+    if mode == Mode.Masks or mode == Mode.MaskSegments:
+        output_shapes = (dims + (1,), dims[0] * dims[1])
     return tf.data.Dataset.from_generator(
         CAPTCHADatasetSource,
         args=[np.int32(mode.value), n_data_points, dims],
         output_types=(tf.float32, tf.float32),
-        output_shapes=(dims + (1,), dims[0] * dims[1]))
+        output_shapes=output_shapes)
