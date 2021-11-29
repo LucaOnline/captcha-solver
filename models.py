@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 def create_mask_model(dims: Tuple[int, int]) -> Sequential:
     model = Sequential([
         Conv2D(32, (3, 3), activation="relu",
-               kernel_initializer="he_normal", input_shape=dims+(3,)),
+               kernel_initializer="he_normal", input_shape=dims+(1,)),
         Conv2D(32, (3, 3), activation="relu", kernel_initializer="he_normal"),
         MaxPooling2D(),
 
@@ -22,7 +22,7 @@ def create_mask_model(dims: Tuple[int, int]) -> Sequential:
     ])
 
     model.compile(
-        loss="sparse_categorical_crossentropy",
+        loss="binary_crossentropy",
         optimizer="adam",
         metrics=["accuracy"],
     )

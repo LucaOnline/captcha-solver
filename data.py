@@ -1,3 +1,4 @@
+import cv2 as cv
 import enum
 from typing import List, Tuple
 import numpy as np
@@ -35,7 +36,7 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         masks = list(captcha_info.masks.values())
         if self.mode == Mode.Masks:
             # X=image, Y=merged masks
-            return (tf.convert_to_tensor(self.rescale_image(captcha_info.image)), self.masks_to_tensor(masks))
+            return (self.format_image(captcha_info.image), self.masks_to_tensor(masks))
         elif self.mode == Mode.MaskSegments:
             # X=merged masks, Y=merged masks with distinct values
             label_mask = self.merge_masks_distinct(masks)
@@ -56,11 +57,16 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
             label_mask = np.where(top == i+1, top, bottom)
         return label_mask
 
+    def format_image(self, image: np.ndarray) -> tf.Tensor:
+        h, w, _ = image.shape
+        return tf.convert_to_tensor(np.reshape(self.rescale_image(cv.cvtColor(image, cv.COLOR_BGR2GRAY)), (h, w, 1)))
+
     def rescale_image(self, image: np.ndarray) -> np.ndarray:
         return image.astype(np.float32) / 255
 
     def masks_to_tensor(self, masks: List[np.ndarray]) -> tf.Tensor:
-        return tf.convert_to_tensor(self.merge_masks(np.array(masks)))
+        h, w = masks[0].shape
+        return tf.convert_to_tensor(np.reshape(self.merge_masks(np.array(masks)), (h * w,)))
 
 
 def build_dataset(dims: Tuple[int, int], mode: Mode) -> tf.data.Dataset:
@@ -68,4 +74,4 @@ def build_dataset(dims: Tuple[int, int], mode: Mode) -> tf.data.Dataset:
         CAPTCHADatasetSource,
         args=[np.int32(mode.value), dims],
         output_types=(tf.float32, tf.float32),
-        output_shapes=(dims + (3,), dims))
+        output_shapes=(dims + (1,), dims[0] * dims[1]))

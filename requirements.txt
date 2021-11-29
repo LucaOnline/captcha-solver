@@ -1,2 +1,3 @@
-xcaptcha==1.0.0
+opencv-python==4.5.1.48
 tensorflow==2.3.2
+xcaptcha==1.0.1
