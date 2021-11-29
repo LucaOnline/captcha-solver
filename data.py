@@ -24,11 +24,7 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         self.solution_masks = {}
 
     def __next__(self):
-        # Break condition
-        if self.i_data_point == self.n_data_points:
-            raise StopIteration()
-        self.i_data_point += 1
-
+        # Consume characters we've already generated and cached
         if self.mode == Mode.Characters and self.solution_idx != len(self.solution):
             # X=single character mask, Y=character sparse vector
             next_char = self.solution[self.solution_idx]
@@ -43,7 +39,13 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
             next_data = (tf.convert_to_tensor(
                 np.reshape(self.solution_masks[next_char], (h, w, 1)), np.float32), tf.convert_to_tensor(sparse_label, np.float32))
             self.solution_idx += 1
+
             return next_data
+
+        # Break condition
+        if self.i_data_point == self.n_data_points:
+            raise StopIteration()
+        self.i_data_point += 1
 
         # Generate next CAPTCHA
         captcha_info = super().__next__()
