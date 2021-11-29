@@ -7,19 +7,19 @@ from models import create_mask_model
 def main():
     dims = (75, 150)
 
-    ds = build_dataset(dims, Mode.Masks).batch(10)
-    val_ds = build_dataset(dims, Mode.Masks).batch(10)
+    ds = build_dataset(dims, Mode.Masks).batch(1)
 
     model = create_mask_model(dims)
 
+    monitor = "loss"
     cb = [
-        EarlyStopping(monitor="val_loss", mode="min", patience=10, verbose=1),
-        ModelCheckpoint("masks.hdf5", monitor="val_loss",
+        EarlyStopping(monitor=monitor, mode="min", patience=10, verbose=1),
+        ModelCheckpoint("masks.hdf5", monitor=monitor,
                         save_best_only=True, verbose=1),
         TensorBoard(),
     ]
 
-    model.fit(ds, validation_data=val_ds, epochs=10, callbacks=cb, verbose=1)
+    model.fit(ds, epochs=10, callbacks=cb, verbose=1)
 
 
 if __name__ == "__main__":
