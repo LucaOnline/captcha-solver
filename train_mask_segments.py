@@ -8,6 +8,7 @@ def main():
     dims = (75, 150)
 
     ds = build_dataset(dims, 100, Mode.MaskSegments).batch(10)
+    val_ds = build_dataset(dims, 50, Mode.MaskSegments).batch(10)
 
     model = create_mask_segmentation_model(dims)
 
@@ -19,7 +20,7 @@ def main():
         TensorBoard(),
     ]
 
-    model.fit(ds, epochs=30, callbacks=cb, verbose=1)
+    model.fit(ds, validation_data=val_ds, epochs=30, callbacks=cb, verbose=1)
 
 
 if __name__ == "__main__":

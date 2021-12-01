@@ -9,6 +9,7 @@ def main():
     dims = (75, 150)
 
     ds = build_dataset(dims, 10000, Mode.Characters).batch(50)
+    val_ds = build_dataset(dims, 2000, Mode.Characters).batch(50)
 
     model = create_characters_model(dims, len(CHARSET_ALPHANUMERIC))
 
@@ -20,7 +21,7 @@ def main():
         TensorBoard(),
     ]
 
-    model.fit(ds, epochs=50, callbacks=cb, verbose=1)
+    model.fit(ds, validation_data=val_ds, epochs=50, callbacks=cb, verbose=1)
 
 
 if __name__ == "__main__":
