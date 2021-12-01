@@ -13,7 +13,7 @@ def main():
 
     model = create_characters_model(dims, len(CHARSET_ALPHANUMERIC))
 
-    monitor = "loss"
+    monitor = "val_loss"
     cb = [
         EarlyStopping(monitor=monitor, mode="min", patience=10, verbose=1),
         ModelCheckpoint("characters.hdf5", monitor=monitor,

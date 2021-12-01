@@ -12,7 +12,7 @@ def main():
 
     model = create_mask_model(dims)
 
-    monitor = "loss"
+    monitor = "val_loss"
     cb = [
         EarlyStopping(monitor=monitor, mode="min", patience=10, verbose=1),
         ModelCheckpoint("masks.hdf5", monitor=monitor,
