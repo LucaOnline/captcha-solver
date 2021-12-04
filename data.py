@@ -24,6 +24,10 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         self.solution_masks = {}
 
     def __next__(self):
+        # Break condition
+        if self.i_data_point == self.n_data_points:
+            raise StopIteration()
+
         # Consume characters we've already generated and cached
         if self.mode == Mode.Characters and self.solution_idx != len(self.solution):
             # X=single character mask, Y=character sparse vector
@@ -40,12 +44,8 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
                 np.reshape(self.solution_masks[next_char], (h, w, 1)), np.float32), tf.convert_to_tensor(sparse_label, np.float32))
             self.solution_idx += 1
 
+            self.i_data_point += 1
             return next_data
-
-        # Break condition
-        if self.i_data_point == self.n_data_points:
-            raise StopIteration()
-        self.i_data_point += 1
 
         # Generate next CAPTCHA
         captcha_info = super().__next__()
@@ -53,10 +53,12 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
         masks = list(captcha_info.masks.values())
         if self.mode == Mode.Masks:
             # X=image, Y=merged masks
+            self.i_data_point += 1
             return (self.format_image(captcha_info.image), self.merge_masks_to_output_tensor(masks))
         elif self.mode == Mode.MaskSegments:
             # X=merged masks, Y=merged masks with distinct values
             label_mask = self.merge_masks_distinct(masks)
+            self.i_data_point += 1
             return (self.merge_masks_to_input_tensor(masks), self.label_mask_to_tensor(label_mask))
         else:  # self.mode == Mode.Characters
             # Prepare CAPTCHA to be reused for each character in the image
