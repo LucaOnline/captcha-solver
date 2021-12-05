@@ -1,4 +1,5 @@
 import cv2 as cv
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
@@ -63,6 +64,8 @@ def sample_mask_segment_predictions():
     predicted_mask_segments = np.ceil(predicted_mask_segments)
 
     mask = np.reshape(mask, dims)
+
+    # Give each mask segment a unique color
     mask_segments = colorize_mask_segments(
         np.reshape(mask_segments, dims), 5)
     predicted_mask_segments = colorize_mask_segments(
@@ -86,6 +89,12 @@ def make_roc_curve():
 
     binary_sentinel = "m"
 
+    total_inferences = 0
+    tp = 0
+    fp = 0
+    tn = 0
+    fn = 0
+
     y_test = []
     y_scores = []
     for i, (mask, label) in ds.batch(1).enumerate():
@@ -93,6 +102,18 @@ def make_roc_curve():
 
         scores = model.predict(mask)[0]
         score = scores[np.argmax(scores)]
+        pred_char = CHARSET_ALPHANUMERIC[np.argmax(scores)]
+
+        # Update confusion matrix data
+        total_inferences += 1
+        if label_char == binary_sentinel and pred_char == binary_sentinel:
+            tp += 1
+        elif label_char != binary_sentinel and pred_char == binary_sentinel:
+            fp += 1
+        elif label_char != binary_sentinel and pred_char != binary_sentinel:
+            tn += 1
+        elif label_char == binary_sentinel and pred_char != binary_sentinel:
+            fn += 1
 
         # Manually build label arrays for sklearn since we're forcing a multiclass classifer
         # into its ROC curve functions
@@ -105,6 +126,19 @@ def make_roc_curve():
         predicted_char = CHARSET_ALPHANUMERIC[np.argmax(scores)]
         print(f"{i}: {(label_char, predicted_char)}")
 
+    # Output confusion matrix data
+    confusion = {
+        "total_inferences": total_inferences,
+        "true_positives": tp,
+        "false_positives": fp,
+        "true_negatives": tn,
+        "false_negatives": fn,
+    }
+
+    with open("out/confusion_matrix.json", "w+") as f:
+        f.write(json.dumps(confusion))
+
+    # Produce ROC curve
     fpr, tpr, _ = roc_curve(y_test, y_scores)
     auc = area_under_curve(fpr, tpr)
 
