@@ -9,20 +9,19 @@ from tensorflow.keras.models import load_model
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC
 
 from data import build_dataset, Mode
+from options import IMAGE_DIMENSIONS, MASKS_MODEL_FILE, MASK_SEGMENTS_MODEL_FILE, CHARS_MODEL_FILE
 
 
 def sample_mask_predictions():
-    dims = (75, 150)
-
-    ds = build_dataset(dims, 1, Mode.Masks)
-    model = load_model("masks.hdf5")
+    ds = build_dataset(IMAGE_DIMENSIONS, 1, Mode.Masks)
+    model = load_model(MASKS_MODEL_FILE)
 
     img, mask = list(ds.batch(1).take(1).as_numpy_iterator())[0]
     predicted_mask = model.predict(img)
 
-    img = np.reshape(img, dims)
-    mask = np.reshape(mask, dims)
-    predicted_mask = np.reshape(predicted_mask, dims)
+    img = np.reshape(img, IMAGE_DIMENSIONS)
+    mask = np.reshape(mask, IMAGE_DIMENSIONS)
+    predicted_mask = np.reshape(predicted_mask, IMAGE_DIMENSIONS)
 
     cv.imshow("Image", img)
     cv.waitKey(0)
@@ -54,22 +53,20 @@ def colorize_mask_segments(input: np.ndarray, n_segments: int) -> np.ndarray:
 
 
 def sample_mask_segment_predictions():
-    dims = (75, 150)
-
-    ds = build_dataset(dims, 1, Mode.MaskSegments)
-    model = load_model("mask_segments.hdf5")
+    ds = build_dataset(IMAGE_DIMENSIONS, 1, Mode.MaskSegments)
+    model = load_model(MASK_SEGMENTS_MODEL_FILE)
 
     mask, mask_segments = list(ds.batch(1).take(1).as_numpy_iterator())[0]
     predicted_mask_segments = model.predict(mask)
     predicted_mask_segments = np.ceil(predicted_mask_segments)
 
-    mask = np.reshape(mask, dims)
+    mask = np.reshape(mask, IMAGE_DIMENSIONS)
 
     # Give each mask segment a unique color
     mask_segments = colorize_mask_segments(
-        np.reshape(mask_segments, dims), 5)
+        np.reshape(mask_segments, IMAGE_DIMENSIONS), 5)
     predicted_mask_segments = colorize_mask_segments(
-        np.reshape(predicted_mask_segments, dims), 5)
+        np.reshape(predicted_mask_segments, IMAGE_DIMENSIONS), 5)
 
     cv.imshow("Mask", mask)
     cv.waitKey(0)
@@ -84,8 +81,8 @@ def sample_mask_segment_predictions():
 
 
 def make_roc_curve():
-    ds = build_dataset((75, 150), 1000, Mode.Characters)
-    model = load_model("characters.hdf5")
+    ds = build_dataset(IMAGE_DIMENSIONS, 1000, Mode.Characters)
+    model = load_model(CHARS_MODEL_FILE)
 
     binary_sentinel = "m"
 

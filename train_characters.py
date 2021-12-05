@@ -3,20 +3,20 @@ from xcaptcha.defaults import CHARSET_ALPHANUMERIC
 
 from data import build_dataset, Mode
 from models import create_characters_model
+from options import IMAGE_DIMENSIONS, CHARS_MODEL_FILE
 
 
 def main():
-    dims = (75, 150)
+    ds = build_dataset(IMAGE_DIMENSIONS, 10000, Mode.Characters).batch(50)
+    val_ds = build_dataset(IMAGE_DIMENSIONS, 2000, Mode.Characters).batch(50)
 
-    ds = build_dataset(dims, 10000, Mode.Characters).batch(50)
-    val_ds = build_dataset(dims, 2000, Mode.Characters).batch(50)
-
-    model = create_characters_model(dims, len(CHARSET_ALPHANUMERIC))
+    model = create_characters_model(
+        IMAGE_DIMENSIONS, len(CHARSET_ALPHANUMERIC))
 
     monitor = "val_loss"
     cb = [
         EarlyStopping(monitor=monitor, mode="min", patience=10, verbose=1),
-        ModelCheckpoint("characters.hdf5", monitor=monitor,
+        ModelCheckpoint(CHARS_MODEL_FILE, monitor=monitor,
                         save_best_only=True, verbose=1),
         TensorBoard(),
     ]

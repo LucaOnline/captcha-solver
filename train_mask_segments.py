@@ -2,20 +2,19 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoa
 
 from data import build_dataset, Mode
 from models import create_mask_segmentation_model
+from options import IMAGE_DIMENSIONS, MASK_SEGMENTS_MODEL_FILE
 
 
 def main():
-    dims = (75, 150)
+    ds = build_dataset(IMAGE_DIMENSIONS, 100, Mode.MaskSegments).batch(10)
+    val_ds = build_dataset(IMAGE_DIMENSIONS, 50, Mode.MaskSegments).batch(10)
 
-    ds = build_dataset(dims, 100, Mode.MaskSegments).batch(10)
-    val_ds = build_dataset(dims, 50, Mode.MaskSegments).batch(10)
-
-    model = create_mask_segmentation_model(dims)
+    model = create_mask_segmentation_model(IMAGE_DIMENSIONS)
 
     monitor = "val_loss"
     cb = [
         EarlyStopping(monitor=monitor, mode="min", patience=10, verbose=1),
-        ModelCheckpoint("mask_segments.hdf5", monitor=monitor,
+        ModelCheckpoint(MASK_SEGMENTS_MODEL_FILE, monitor=monitor,
                         save_best_only=True, verbose=1),
         TensorBoard(),
     ]
