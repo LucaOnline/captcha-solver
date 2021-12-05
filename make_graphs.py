@@ -9,7 +9,8 @@ from tensorflow.keras.models import load_model
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC
 
 from data import build_dataset, Mode
-from options import IMAGE_DIMENSIONS, MASKS_MODEL_FILE, MASK_SEGMENTS_MODEL_FILE, CHARS_MODEL_FILE
+from model_postprocessing import discretize_mask_segments_prediction
+from options import IMAGE_DIMENSIONS, MASKS_MODEL_FILE, MASK_SEGMENTS_MODEL_FILE, CHARS_MODEL_FILE, N_CHARACTERS
 
 
 def sample_mask_predictions():
@@ -58,7 +59,8 @@ def sample_mask_segment_predictions():
 
     mask, mask_segments = list(ds.batch(1).take(1).as_numpy_iterator())[0]
     predicted_mask_segments = model.predict(mask)
-    predicted_mask_segments = np.ceil(predicted_mask_segments)
+    predicted_mask_segments = discretize_mask_segments_prediction(
+        predicted_mask_segments, N_CHARACTERS)
 
     mask = np.reshape(mask, IMAGE_DIMENSIONS)
 
