@@ -1,6 +1,7 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
+from random import randint
 from sklearn.metrics import roc_curve
 from sklearn.metrics import auc as area_under_curve
 from tensorflow.keras.models import load_model
@@ -32,6 +33,51 @@ def sample_mask_predictions():
     cv.imwrite("out/masks_image.png", img)
     cv.imwrite("out/masks_label.png", mask)
     cv.imwrite("out/masks_pred.png", predicted_mask)
+
+
+def random_color() -> tuple:
+    return (randint(0, 255), randint(0, 255), randint(0, 255))
+
+
+def colorize_mask_segments(input: np.ndarray, n_segments: int) -> np.ndarray:
+    h, w = input.shape
+    output = np.zeros(input.shape + (3,), dtype=np.uint8)
+    colors = [random_color() for _ in range(n_segments)]
+    for n in range(1, n_segments + 1):
+        for r in range(h):
+            for c in range(w):
+                if input[r, c] == n:
+                    output[r, c] = colors[n - 1]
+
+    return output
+
+
+def sample_mask_segment_predictions():
+    dims = (75, 150)
+
+    ds = build_dataset(dims, 1, Mode.MaskSegments)
+    model = load_model("mask_segments.hdf5")
+
+    mask, mask_segments = list(ds.batch(1).take(1).as_numpy_iterator())[0]
+    predicted_mask_segments = model.predict(mask)
+    predicted_mask_segments = np.ceil(predicted_mask_segments)
+
+    mask = np.reshape(mask, dims)
+    mask_segments = colorize_mask_segments(
+        np.reshape(mask_segments, dims), 5)
+    predicted_mask_segments = colorize_mask_segments(
+        np.reshape(predicted_mask_segments, dims), 5)
+
+    cv.imshow("Mask", mask)
+    cv.waitKey(0)
+    cv.imshow("Mask Segments", mask_segments)
+    cv.waitKey(0)
+    cv.imshow("Predicted Mask Segments", predicted_mask_segments)
+    cv.waitKey(0)
+
+    cv.imwrite("out/mask_segments_mask.png", mask)
+    cv.imwrite("out/mask_segments_label.png", mask_segments)
+    cv.imwrite("out/mask_segments_pred.png", predicted_mask_segments)
 
 
 def make_roc_curve():
@@ -75,3 +121,5 @@ def make_roc_curve():
 
 if __name__ == "__main__":
     sample_mask_predictions()
+    sample_mask_segment_predictions()
+    make_roc_curve()
