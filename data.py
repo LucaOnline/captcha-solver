@@ -6,6 +6,8 @@ import tensorflow as tf
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC, FONTS
 from xcaptcha.generator import CAPTCHAGenerator
 
+from options import N_CHARACTERS
+
 
 class Mode(enum.Enum):
     Masks = 0
@@ -15,7 +17,8 @@ class Mode(enum.Enum):
 
 class CAPTCHADatasetSource(CAPTCHAGenerator):
     def __init__(self, mode: tf.int32, n_data_points: int, dims: tuple):
-        super().__init__(CHARSET_ALPHANUMERIC, dims, dims, 5, 5, FONTS)
+        super().__init__(CHARSET_ALPHANUMERIC, dims,
+                         dims, N_CHARACTERS, N_CHARACTERS, FONTS)
         self.mode = Mode(int(mode))
         self.n_data_points = n_data_points
         self.i_data_point = 0
