@@ -37,11 +37,17 @@ mask_segments_pred = np.floor(np.abs((mask_segments_pred -
 # Predict each character separately using its mask
 prediction = ""
 for i in range(1, N_CHARACTERS + 1):
+    # Filter overlain masks for this character's mask
     char_mask = np.where(mask_segments_pred == i, np.ones(
         IMAGE_DIMENSIONS), np.zeros(IMAGE_DIMENSIONS))
+
+    # The final layer of this model is an argmax layer, so this produces a vector of scores
     char_scores = chars_model.predict(np.reshape(char_mask, model_input_dims))
+
+    # Get the prediction by picking out the highest score
     char_pred = CHARSET_ALPHANUMERIC[np.argmax(char_scores)]
 
+    # Add the predicted character to our total prediction
     prediction += char_pred
 
 # Output final prediction
