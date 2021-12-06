@@ -87,7 +87,7 @@ def make_roc_curve():
     ds = build_dataset(IMAGE_DIMENSIONS, 1000, Mode.Characters)
     model = load_model(CHARS_MODEL_FILE)
 
-    binary_sentinel = "m"
+    binary_sentinel = "X"
 
     total_inferences = 0
     tp = 0
