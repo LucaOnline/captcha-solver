@@ -149,7 +149,8 @@ def make_roc_curve():
     plt.xlabel("FPR")
     plt.ylim([0, 1])
     plt.ylabel("TPR")
-    plt.title(f'ROC Curve (Positive class = "m", N = {len(y_test)})')
+    plt.title(
+        f'ROC Curve (Positive class = "{binary_sentinel}", N = {len(y_test)})')
     plt.show()
 
 
