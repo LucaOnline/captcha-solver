@@ -4,7 +4,7 @@ from tensorflow.keras.models import load_model
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC, FONTS
 from xcaptcha.generator import CAPTCHAGenerator
 
-from model_postprocessing import discretize_mask_segments_prediction
+from model_postprocessing import discretize_mask_segments_prediction, threshold_masks
 from options import IMAGE_DIMENSIONS, MASKS_MODEL_FILE, MASK_SEGMENTS_MODEL_FILE, CHARS_MODEL_FILE, N_CHARACTERS
 
 # Load the three models
@@ -30,6 +30,7 @@ mask_pred = masks_model.predict(np.reshape(img, model_input_dims))
 mask_segments_pred = mask_segments_model.predict(
     np.reshape(mask_pred, model_input_dims))
 mask_segments_pred = np.reshape(np.ceil(mask_segments_pred), IMAGE_DIMENSIONS)
+mask_segments_pred = threshold_masks(mask_segments_pred)
 
 # Rescale the predicted mask segments into our expected input range
 mask_segments_pred = discretize_mask_segments_prediction(

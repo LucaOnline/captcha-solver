@@ -3,13 +3,12 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc as area_under_curve
+from sklearn.metrics import roc_curve, auc as area_under_curve
 from tensorflow.keras.models import load_model
 from xcaptcha.defaults import CHARSET_ALPHANUMERIC
 
 from data import build_dataset, Mode
-from model_postprocessing import discretize_mask_segments_prediction
+from model_postprocessing import discretize_mask_segments_prediction, threshold_masks
 from options import IMAGE_DIMENSIONS, MASKS_MODEL_FILE, MASK_SEGMENTS_MODEL_FILE, CHARS_MODEL_FILE, N_CHARACTERS
 
 
@@ -23,7 +22,9 @@ def sample_mask_predictions():
     img = np.reshape(img, IMAGE_DIMENSIONS)
     mask = np.reshape(mask, IMAGE_DIMENSIONS)
     predicted_mask = np.reshape(predicted_mask, IMAGE_DIMENSIONS)
+    predicted_mask = threshold_masks(predicted_mask)
 
+    print(img)
     cv.imshow("Image", img)
     cv.waitKey(0)
     cv.imshow("Mask", mask)
@@ -31,9 +32,9 @@ def sample_mask_predictions():
     cv.imshow("Predicted Mask", predicted_mask)
     cv.waitKey(0)
 
-    cv.imwrite("out/masks_image.png", img)
-    cv.imwrite("out/masks_label.png", mask)
-    cv.imwrite("out/masks_pred.png", predicted_mask)
+    cv.imwrite("out/masks_image.png", img * 255)
+    cv.imwrite("out/masks_label.png", mask * 255)
+    cv.imwrite("out/masks_pred.png", predicted_mask * 255)
 
 
 def random_color() -> tuple:
@@ -77,7 +78,7 @@ def sample_mask_segment_predictions():
     cv.imshow("Predicted Mask Segments", predicted_mask_segments)
     cv.waitKey(0)
 
-    cv.imwrite("out/mask_segments_mask.png", mask)
+    cv.imwrite("out/mask_segments_mask.png", mask * 255)
     cv.imwrite("out/mask_segments_label.png", mask_segments)
     cv.imwrite("out/mask_segments_pred.png", predicted_mask_segments)
 
