@@ -17,6 +17,7 @@ generator = CAPTCHAGenerator(
     CHARSET_ALPHANUMERIC, IMAGE_DIMENSIONS, IMAGE_DIMENSIONS, N_CHARACTERS, N_CHARACTERS, FONTS)
 
 captcha = next(generator)
+cv.imwrite("out/inference_input.png", captcha.image)
 
 # Convert the image to greyscale
 img = cv.cvtColor(captcha.image, cv.COLOR_BGR2GRAY)
