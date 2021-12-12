@@ -73,9 +73,9 @@ class CAPTCHADatasetSource(CAPTCHAGenerator):
     def merge_masks_distinct(self, masks: List[np.ndarray]) -> np.ndarray:
         # Merge masks, using a distinct value for each layer
         label_mask = np.copy(masks[0])
-        for i in range(len(masks) - 1):
+        for i in range(1, len(masks)):
             bottom = label_mask
-            top = masks[i + 1] * (i + 1)
+            top = masks[i] * (i + 1)
             label_mask = np.where(top == i+1, top, bottom)
         return label_mask
 

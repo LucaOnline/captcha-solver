@@ -101,7 +101,6 @@ def create_characters_model(dims: Tuple[int, int], n_charset: int) -> Sequential
         MaxPooling2D(),
 
         Flatten(),
-        Dense(512, activation="relu"),
         Dense(n_charset, activation="softmax"),
     ])
 
