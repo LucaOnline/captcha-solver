@@ -27,6 +27,7 @@ include the actual and predicted text sequences. The generated image will be sav
 ## Evaluation
 Sample outputs for the 3 models can be generated at once by running `python ./make_graphs.py`. This will display several data images, which may be dismissed with a keyboard
 press. The script will generate several files:
+![Generated files](https://raw.githubusercontent.com/LucaOnline/captcha-solver/main/assets/0.png)
 ```
  - masks_image.png: A greyscale image used as input for the masks model.
  - masks_label.png: The ground-truth text mask for the input image.
@@ -39,6 +40,7 @@ press. The script will generate several files:
 
 Additionally, an ROC curve for the characters model will be graphed and displayed. This may be saved using the Save button in the display window, shown in the following screenshot.
 In the above screenshot, it has been saved to `chars_roc.png`. The ROC curve and the area under the curve may differ from the following screenshot.
+![Matplotlib display of characters model ROC curve](https://raw.githubusercontent.com/LucaOnline/captcha-solver/main/assets/2.png)
 
 ## Data
 All data is generated at runtime using the `xcaptcha` library. Besides installing the dependencies described in `requirements.txt`, no additional data downloads are needed.
