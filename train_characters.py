@@ -9,6 +9,7 @@ from options import IMAGE_DIMENSIONS, CHARS_MODEL_FILE
 def main():
     ds = build_dataset(IMAGE_DIMENSIONS, 10000, Mode.Characters).batch(50)
     val_ds = build_dataset(IMAGE_DIMENSIONS, 2000, Mode.Characters).batch(50)
+    test_ds = build_dataset(IMAGE_DIMENSIONS, 1000, Mode.Characters).batch(50)
 
     model = create_characters_model(
         IMAGE_DIMENSIONS, len(CHARSET_ALPHANUMERIC))
@@ -22,6 +23,7 @@ def main():
     ]
 
     model.fit(ds, validation_data=val_ds, epochs=50, callbacks=cb, verbose=1)
+    model.evaluate(test_ds, verbose=1)
 
 
 if __name__ == "__main__":

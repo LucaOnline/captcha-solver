@@ -8,6 +8,7 @@ from options import IMAGE_DIMENSIONS, MASK_SEGMENTS_MODEL_FILE
 def main():
     ds = build_dataset(IMAGE_DIMENSIONS, 100, Mode.MaskSegments).batch(10)
     val_ds = build_dataset(IMAGE_DIMENSIONS, 50, Mode.MaskSegments).batch(10)
+    test_ds = build_dataset(IMAGE_DIMENSIONS, 50, Mode.MaskSegments).batch(10)
 
     model = create_mask_segmentation_model(IMAGE_DIMENSIONS)
 
@@ -20,6 +21,7 @@ def main():
     ]
 
     model.fit(ds, validation_data=val_ds, epochs=30, callbacks=cb, verbose=1)
+    model.evaluate(test_ds, verbose=1)
 
 
 if __name__ == "__main__":
