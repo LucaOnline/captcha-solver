@@ -22,9 +22,10 @@ python ./train_characters.py
 
 ## Prediction
 No additional software is required for inferencing. To run the pipeline with a randomly-generated input, run the command `python ./inference.py`. The command output will
-include the actual and predicted text sequences. The generated image will be saved to `out/inference_input.png`.
-
+include the actual and predicted text sequences. The generated image will be saved to `out/inference_input.png`. Below is example prediction console output.
 ![Prediction console output](https://raw.githubusercontent.com/LucaOnline/captcha-solver/main/assets/1.png)
+And here is an example generated image:
+![Prediction generated input](https://raw.githubusercontent.com/LucaOnline/captcha-solver/main/assets/3.png)
 
 ## Evaluation
 Sample outputs for the 3 models can be generated at once by running `python ./make_graphs.py`. This will display several data images, which may be dismissed with a keyboard
